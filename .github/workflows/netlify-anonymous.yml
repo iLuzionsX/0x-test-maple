@@ -1,9 +1,9 @@
 name: Anonymous Netlify Deploy
 
 on:
-  push:
+  pull_request:
     branches:
-      - feat/maples-playable-vertical-slice
+      - main
     paths:
       - .github/workflows/netlify-anonymous.yml
   workflow_dispatch:
