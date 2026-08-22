@@ -1,0 +1,46 @@
+name: Anonymous Netlify Deploy
+
+on:
+  push:
+    branches:
+      - feat/maples-playable-vertical-slice
+    paths:
+      - .github/workflows/netlify-anonymous.yml
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build Maples
+        run: npm run build
+
+      - name: Install Netlify CLI
+        run: npm install --global netlify-cli@latest --no-audit --no-fund
+
+      - name: Anonymous deploy
+        run: |
+          netlify deploy --dir=dist --allow-anonymous --json | tee netlify-deploy.json
+
+      - name: Preserve deploy result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: netlify-anonymous-deploy
+          path: netlify-deploy.json
+          if-no-files-found: warn
+          retention-days: 1
